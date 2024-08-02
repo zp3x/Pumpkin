@@ -75,7 +75,7 @@ pub struct CLogin {
     entity_id: i32,
     is_hardcore: bool,
     dimension_count: VarInt,
-    dimension_names: Vec<String>,
+    dimension_names: String,
     max_players: VarInt,
     view_distance: VarInt,
     simulated_distance: VarInt,
@@ -102,7 +102,7 @@ impl CLogin {
         entity_id: i32,
         is_hardcore: bool,
         dimension_count: VarInt,
-        dimension_names: Vec<String>,
+        dimension_names: String,
         max_players: VarInt,
         view_distance: VarInt,
         simulated_distance: VarInt,
@@ -156,7 +156,7 @@ impl ClientPacket for CLogin {
         bytebuf.put_i32(self.entity_id);
         bytebuf.put_bool(self.is_hardcore);
         bytebuf.put_var_int(self.dimension_count);
-        bytebuf.put_string_array(self.dimension_names.as_slice());
+        bytebuf.put_string(&self.dimension_names);
         bytebuf.put_var_int(self.max_players);
         bytebuf.put_var_int(self.view_distance);
         bytebuf.put_var_int(self.simulated_distance);
