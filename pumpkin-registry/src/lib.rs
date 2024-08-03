@@ -5,12 +5,12 @@ use paint::Painting;
 use pumpkin_protocol::client::config::RegistryEntry;
 use wolf::WolfVariant;
 
- mod biomes;
+mod biomes;
 mod chat_type;
 mod damage_type;
- mod dimensions;
- mod paint;
- mod wolf;
+mod dimensions;
+mod paint;
+mod wolf;
 
 pub struct Registry {
     pub registry_id: String,
@@ -29,11 +29,18 @@ impl Registry {
         };
         let biomes = Registry {
             registry_id: "minecraft:worldgen/biome".to_string(),
-            registry_entries: vec![RegistryEntry {
-                entry_id: "minecraft:snowy_taiga".to_string(),
-                data: fastnbt::to_bytes_with_opts(&Biome::default(), SerOpts::network_nbt())
-                    .unwrap(),
-            }],
+            registry_entries: vec![
+                RegistryEntry {
+                    entry_id: "minecraft:snowy_taiga".to_string(),
+                    data: fastnbt::to_bytes_with_opts(&Biome::default(), SerOpts::network_nbt())
+                        .unwrap(),
+                },
+                RegistryEntry {
+                    entry_id: "minecraft:plains".to_string(),
+                    data: fastnbt::to_bytes_with_opts(&Biome::default(), SerOpts::network_nbt())
+                        .unwrap(),
+                },
+            ],
         };
         let wolf_variants = Registry {
             registry_id: "minecraft:wolf_variant".to_string(),
@@ -43,6 +50,10 @@ impl Registry {
                     .unwrap(),
             }],
         };
+        let damage_types = Registry {
+            registry_id: "minecraft:damage_type".to_string(),
+            registry_entries: damage_type::entires(),
+        };
         let paintings = Registry {
             registry_id: "minecraft:painting_variant".to_string(),
             registry_entries: vec![RegistryEntry {
@@ -51,6 +62,6 @@ impl Registry {
                     .unwrap(),
             }],
         };
-        vec![dimensions, biomes, wolf_variants, paintings]
+        vec![dimensions, damage_types, biomes, wolf_variants, paintings]
     }
 }

@@ -6,7 +6,10 @@ use std::{
 use base64::{engine::general_purpose, Engine};
 use mio::{event::Event, Poll};
 use pumpkin_protocol::{
-    client::{config::CPluginMessage, play::CLogin},
+    client::{
+        config::CPluginMessage,
+        play::{CGameEvent, CLogin, CSyncPlayerPostion},
+    },
     PacketError, Players, Sample, StatusResponse, VarInt, VarInt32, Version,
 };
 use rsa::{rand_core::OsRng, traits::PublicKeyParts, RsaPrivateKey, RsaPublicKey};
@@ -90,7 +93,9 @@ impl Server {
         client.poll(self, event)
     }
 
+    // todo: do this in a world
     pub fn spawn_player(&mut self, client: &mut Client) {
+        dbg!("spawning player");
         let player = Player {
             entity: Entity {
                 entity_id: self.new_entity_id(),
@@ -101,8 +106,7 @@ impl Server {
             .send_packet(CLogin::new(
                 player.entity_id(),
                 self.difficulty == Difficulty::Hard,
-                0,
-                "minecraft:overworld".into(),
+                vec!["minecraft:overworld".into()],
                 self.max_players as VarInt,
                 8, //  view distance todo
                 8, // sim view dinstance todo
@@ -123,10 +127,21 @@ impl Server {
                 false,
             ))
             .unwrap_or_else(|e| client.kick(&e.to_string()));
+        // teleport
+        client
+            .send_packet(CSyncPlayerPostion::new(10.0, 10.0, 10.0, 10.0, 0.0, 0, 10))
+            .unwrap_or_else(|e| client.kick(&e.to_string()));
 
-        dbg!("spawning player");
+        // Start waiting for level chunks
+        client
+            .send_packet(CGameEvent::new(13, 0.0))
+            .unwrap_or_else(|e| client.kick(&e.to_string()));
+
         client.player = Some(player);
     }
+
+    // todo: do this in a world
+    fn spawn_test_chunk(client: &Client) {}
 
     // move to world
     pub fn new_entity_id(&self) -> EntityId {
